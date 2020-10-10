@@ -1,77 +1,64 @@
 # import the necessary packages
-import base64
 import random
-
-import cv2
-# from flask_socketio import SocketIO
 import time
-from flask import Flask, render_template, request
-
 import socketio
+from video_processing import Video
 
 sio = socketio.Client()
-server_addr = "http://127.0.0.1:5001/"
+server_address = "http://0.0.0.0:5001/"
 
 
 @sio.event
 def connect():
+    """This funnction is triggered when CV client is successfully connected to the server"""
     print('[INFO] Successfully connected to server.')
 
 
 @sio.event
 def connect_error():
-    print('[INFO] Failed to connect to server.')
+    """This funnction is triggered when CV client fails to connect to the server"""
+    print('[INFO] Failed to connect to server')
 
 
 @sio.event
 def disconnect():
+    """This funnction is triggered when CV client is disconnected from the server"""
     print('[INFO] Disconnected from server.')
 
 
-class Video(object):
-    """This class process the Video received, processes it."""
-
-    def __init__(self):
-        # capturing video
-        self.video = cv2.VideoCapture(0)
-
-    def __del__(self):
-        # releasing camera
-        self.video.release()
-
-    def get_frame(self):
-        """Convert the video frames to bytes"""
-        # extracting frames
-        ret, frame = self.video.read()
-        cv2.rectangle(frame, (150, 200), (400, 400), (255, 0, 0), 2)
-        ret, jpeg = cv2.imencode('.jpg', frame)
-        # cv2.rectangle(jpeg, (15, 15), (150, 150), (255, 0, 0), 7)
-        frame = base64.b64encode(jpeg).decode('utf-8')
-        return "data:image/jpeg;base64,{}".format(frame)
-
-
-def setup():
-    print("trying to connect to server")
+def start_connection():
+    """Establishes websocket connection to the server"""
+    print("[INFO] Establishing Connection")
     sio.connect(
-        "http://0.0.0.0:5001/",
+        server_address,
         transports=['websocket'],
         namespaces=['/cv'],
     )
     time.sleep(1)
 
 
-def main():
-    setup()
-    cam = Video()
+def stream_video():
+    """Streams base64 enocoded image to the server using websocket"""
+
+    # dummy data
     words = ['Abhishek', 'Shubhank', 'Shreya']
+
     while True:
         sio.emit(
             'cv2server',
             {
-                'image': cam.get_frame(),
+                'image': Video().get_frame(),
                 'text': random.choice(words)
             })
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        start_connection()
+    except TypeError:
+        print("[INFO] Connection failed")
+    stream_video()
+
+
+
+
