@@ -1,16 +1,18 @@
-Package         Version
---------------- --------
-click           7.1.2
-Flask           1.1.2
-Flask-SocketIO  4.3.1
-itsdangerous    1.1.0
-Jinja2          2.11.2
-MarkupSafe      1.1.1
-numpy           1.19.2
-opencv-python   4.4.0.44
-pip             20.2.3
-python-engineio 3.13.2
-python-socketio 4.6.0
-setuptools      40.8.0
-six             1.15.0
-Werkzeug        1.0.1
+click==7.1.2
+dnspython==1.16.0
+Flask==1.1.2
+Flask-SocketIO==4.3.1
+greenlet==0.4.17
+itsdangerous==1.1.0
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+monotonic==1.5
+numpy==1.19.2
+opencv-python==4.4.0.44
+python-engineio==3.13.2
+python-socketio==4.6.0
+six==1.15.0
+websocket-client==0.57.0
+Werkzeug==1.0.1
+zope.event==4.5.0
+zope.interface==5.1.2
