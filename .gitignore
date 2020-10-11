@@ -2,4 +2,4 @@ venv
 .idea/
 *.pyc
 *.pyo
-server/logs
+server/logs/*

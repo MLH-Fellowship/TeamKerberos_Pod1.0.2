@@ -74,6 +74,7 @@ class DetectSign(object):
         return self.encode_frame(frame)
 
     def predict(self, image_data, sess, softmax_tensor, label_lines):
+        """Predicts the Character using the frame of the video"""
 
         predictions = sess.run(softmax_tensor,
                                {'DecodeJpeg/contents:0': image_data})
@@ -92,7 +93,9 @@ class DetectSign(object):
         return res, max_score
 
     # Loads label file, strips off carriage return
-    def solve(self):
+    def generate_video(self):
+        """Generates frames after prediction"""
+
         label_lines = [line.rstrip() for line
                        in tf.gfile.GFile("server/logs/trained_labels.txt")]
 
@@ -143,23 +146,25 @@ class DetectSign(object):
                                 sequence += res
                             consecutive = 0
                     i += 1
+                    mem = res
                     cv2.putText(img, '%s' % (res.upper()), (100, 400), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 255, 255), 4)
                     cv2.putText(img, '(score = %.5f)' % (float(score)), (100, 450), cv2.FONT_HERSHEY_SIMPLEX, 1,
                                 (255, 255, 255))
-                    mem = res
                     cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                    sio.emit(
-                        'cv2server',
-                        {
-                            'image': self.encode_frame(img),
-                            'text': res
-                        })
+                    self.emit_frames(img, res)
 
-
+    def emit_frames(self, img, res):
+        """Sends data to the webserver using websocket"""
+        sio.emit(
+            'cv2server',
+            {
+                'image': self.encode_frame(img),
+                'text': res
+            })
 
 if __name__ == "__main__":
     try:
         start_connection()
     except TypeError:
         print("[INFO] Connection failed")
-    DetectSign().solve()
+    DetectSign().generate_video()
