@@ -1,10 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
 
-<html>
-  <head>
-    <title>Video Streaming Demonstration</title>
-  </head>
-  <body>
-    <h1>Real Time Video Streaming</h1>
-    <img id="bg" src="{{ url_for('video_feed') }}">
-  </body>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="{{ url_for('static', filename = 'favicon.ico') }}">
+    <title>Sign Language Reader</title>
+
+    <!-- Socket IO
+    ================================================== -->
+    <script type="text/javascript"
+            src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.3/socket.io.js">
+    </script>
+
+    <!-- Bootstrap CSS
+    ================================================== -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <!-- Custom styles
+    ================================================== -->
+    <link href="https://fonts.googleapis.com/css?family=Karla&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+
+<body class="tos-bg">
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#" target="_blank">
+        <div class="logos-svg"></div>
+    </a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+        <span class="navbar-nav mr-auto"></span>
+        <ul class="navbar-nav ">
+            <li class="nav-item">
+                <a class="nav-link" href="https://github.com/MLH-Fellowship/TeamKerberos_Pod1.0.2" target="_blank">Contribute</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container" min-width="1024px" width="100%">
+
+    <div class="dash-sub-title">
+        <h1>Sign Language Reader</h1>
+    </div>
+
+    <div class="card-deck">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Output</h5>
+                <div class="card-scroller">
+                    <p id="streamer-text"></p>
+                </div>
+            </div>
+        </div>
+
+        <div style="width: 70%">
+            <img id="streamer-image" src="">
+        </div>
+    </div>
+
+</div>
+</body>
 </html>
+<script src="../static/script.js"></script>
+
