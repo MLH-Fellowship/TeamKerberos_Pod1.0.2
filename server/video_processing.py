@@ -1,6 +1,6 @@
 import base64
 import cv2
-
+from ASL_Classifier.classify_webcam import solve
 class Video(object):
     """This class process the Video received, processes it."""
 
