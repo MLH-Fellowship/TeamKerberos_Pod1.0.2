@@ -4,7 +4,7 @@ const text_elem = document.getElementById("streamer-text");
 
 
 // request access to webcam
-navigator.mediaDevices.getUserMedia({video: {width: 426, height: 240}}).then((stream) => video.srcObject = stream);
+navigator.mediaDevices.getUserMedia({video: {}}).then((stream) => video.srcObject = stream);
 
 // returns a frame encoded in base64
 const getFrame = () => {
