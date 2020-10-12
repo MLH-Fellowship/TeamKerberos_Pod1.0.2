@@ -16,6 +16,10 @@ def connect_web():
     """This funnction is triggered when web client connects successfully"""
     print('[INFO] Web client connected: {}'.format(request.sid))
 
+@socketio.on('video-stream', namespace='/web')
+def connect_web(message):
+    """This funnction is triggered when web client connects successfully"""
+    print('Video stream recieved {}'.format(message))
 
 @socketio.on('disconnect', namespace='/web')
 def disconnect_web():
