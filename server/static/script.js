@@ -1,3 +1,22 @@
+//Todo- Implement Client side camera capture
+
+// navigator.getUserMedia = ( navigator.getUserMedia ||
+//   navigator.webkitGetUserMedia ||
+//   navigator.mozGetUserMedia ||
+//   navigator.msGetUserMedia);
+
+// function startVideo() {
+// console.log("access");
+// navigator.getUserMedia(
+//   {
+//     video: {}
+//   },
+//   stream => video.srcObject = stream,
+//   err => console.error(err)
+//   )}
+
+var word = "";
+
 document.addEventListener("DOMContentLoaded", function(event) {
     const image_elem = document.getElementById("streamer-image");
     const text_elem = document.getElementById("streamer-text");
@@ -29,6 +48,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
     // Update image and text data based on incoming data messages
     socket.on('server2web', (msg) => {
       image_elem.src = msg.image;
-      text_elem.innerHTML = msg.text;
+      if (msg.text !== "nothing"){
+        word = word + msg.text
+        text_elem.innerHTML = word;
+      }
     });
   });
