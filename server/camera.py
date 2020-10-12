@@ -1,10 +1,11 @@
 # import the necessary packages
-import base64
 import os
 import time
-
+import base64
 import cv2
 import socketio
+import io
+from imageio import imread
 
 # Disable tensorflow compilation warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -43,128 +44,76 @@ def start_connection():
     time.sleep(1)
 
 
-class DetectSign(object):
-    """This class process the Video received, processes it."""
+def predict(image_data, sess, softmax_tensor, label_lines):
+    """Predicts the Character using the frame of the video"""
 
-    def __init__(self):
-        # capturing video
-        self.video = cv2.VideoCapture(0)
-        time.sleep(1)
+    predictions = sess.run(softmax_tensor,
+                           {'DecodeJpeg/contents:0': image_data})
 
-    def __del__(self):
-        # releasing camera
-        self.video.release()
+    # Sort to show labels of first prediction in order of confidence
+    top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
 
-    def encode_frame(self, frame):
-        """Takes video frames and encode it into base64 jpeg image"""
+    max_score = 0.0
+    res = ''
+    for node_id in top_k:
+        human_string = label_lines[node_id]
+        score = predictions[0][node_id]
+        if score > max_score:
+            max_score = score
+            res = human_string
+    return res, max_score
 
-        ret, jpeg = cv2.imencode('.jpg', frame)
-        frame = base64.b64encode(jpeg).decode('utf-8')
-        return "data:image/jpeg;base64,{}".format(frame)
 
-    def get_frame(self):
-        """Convert the video frames to bytes"""
+def generate_video(im):
+    """Generates frames after prediction"""
 
-        # extracting frames
-        ret, frame = self.video.read()
+    label_lines = [line.rstrip() for line
+                   in tf.gfile.GFile("server/logs/trained_labels.txt")]
 
-        # adding rectangular box where user is supposed to make gestures
-        cv2.rectangle(frame, (150, 200), (400, 400), (255, 0, 0), 2)
+    # Unpersists graph from file
+    with tf.gfile.FastGFile("server/logs/trained_graph.pb", 'rb') as f:
+        graph_def = tf.GraphDef()
+        graph_def.ParseFromString(f.read())
+        _ = tf.import_graph_def(graph_def, name='')
 
-        return self.encode_frame(frame)
+    with tf.Session() as sess:
+        # Feed the image_data as input to the graph and get first prediction
+        softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
+        c = 0
 
-    def predict(self, image_data, sess, softmax_tensor, label_lines):
-        """Predicts the Character using the frame of the video"""
+        res, score = '', 0.0
+        i = 0
+        mem = ''
+        consecutive = 0
+        sequence = ''
 
-        predictions = sess.run(softmax_tensor,
-                               {'DecodeJpeg/contents:0': image_data})
+        ret = True
+        img = im
+        img = cv2.flip(img, 1)
 
-        # Sort to show labels of first prediction in order of confidence
-        top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+        if ret:
+            x1, y1, x2, y2 = 100, 100, 300, 300
+            img_cropped = img[y1:y2, x1:x2]
 
-        max_score = 0.0
-        res = ''
-        for node_id in top_k:
-            human_string = label_lines[node_id]
-            score = predictions[0][node_id]
-            if score > max_score:
-                max_score = score
-                res = human_string
-        return res, max_score
+            c += 1
+            image_data = cv2.imencode('.jpg', img_cropped)[1].tostring()
+            res_tmp, score = predict(image_data, sess, softmax_tensor, label_lines)
+            mem = res
+            detected = {
+                'text': res_tmp
+            }
+            return detected
 
-    # Loads label file, strips off carriage return
-    def generate_video(self):
-        """Generates frames after prediction"""
 
-        label_lines = [line.rstrip() for line
-                       in tf.gfile.GFile("server/logs/trained_labels.txt")]
+def encode_frame(frame):
+    """Takes video frames and encode it into base64 jpeg image"""
 
-        # Unpersists graph from file
-        with tf.gfile.FastGFile("server/logs/trained_graph.pb", 'rb') as f:
-            graph_def = tf.GraphDef()
-            graph_def.ParseFromString(f.read())
-            _ = tf.import_graph_def(graph_def, name='')
+    ret, jpeg = cv2.imencode('.jpg', frame)
+    frame = base64.b64encode(jpeg).decode('utf-8')
+    return "data:image/jpeg;base64,{}".format(frame)
 
-        with tf.Session() as sess:
-            # Feed the image_data as input to the graph and get first prediction
-            softmax_tensor = sess.graph.get_tensor_by_name('final_result:0')
-            c = 0
 
-            cap = self.video
-            time.sleep(1)
-            res, score = '', 0.0
-            i = 0
-            mem = ''
-            consecutive = 0
-            sequence = ''
+def strtonumpy(s):
+    img = imread(io.BytesIO(base64.b64decode(s[22:])))
+    return img
 
-            while True:
-                ret, img = cap.read()
-                img = cv2.flip(img, 1)
-
-                if ret:
-                    x1, y1, x2, y2 = 100, 100, 300, 300
-                    img_cropped = img[y1:y2, x1:x2]
-
-                    c += 1
-                    image_data = cv2.imencode('.jpg', img_cropped)[1].tostring()
-
-                    if i == 4:
-                        res_tmp, score = self.predict(image_data, sess, softmax_tensor, label_lines)
-                        res = res_tmp
-                        i = 0
-                        if mem == res:
-                            consecutive += 1
-                        else:
-                            consecutive = 0
-                        if consecutive == 2 and res not in ['nothing']:
-                            if res == 'space':
-                                sequence += ' '
-                            elif res == 'del':
-                                sequence = sequence[:-1]
-                            else:
-                                sequence += res
-                            consecutive = 0
-                    i += 1
-                    mem = res
-                    cv2.putText(img, '%s' % (res.upper()), (100, 400), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 255, 255), 4)
-                    cv2.putText(img, '(score = %.5f)' % (float(score)), (100, 450), cv2.FONT_HERSHEY_SIMPLEX, 1,
-                                (255, 255, 255))
-                    cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                    self.emit_frames(img, res)
-
-    def emit_frames(self, img, res):
-        """Sends data to the webserver using websocket"""
-        sio.emit(
-            'cv2server',
-            {
-                'image': self.encode_frame(img),
-                'text': res
-            })
-
-if __name__ == "__main__":
-    try:
-        start_connection()
-    except TypeError:
-        print("[INFO] Connection failed")
-    DetectSign().generate_video()

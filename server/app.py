@@ -1,5 +1,6 @@
 from flask_socketio import SocketIO
 from flask import Flask, render_template, request
+from camera import generate_video, strtonumpy
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -26,6 +27,10 @@ def disconnect_web():
     """This funnction is triggered when web client disconnects"""
     print('[INFO] Web client disconnected: {}'.format(request.sid))
 
+@socketio.on('stream', namespace='/web')
+def getstream(msg):
+    """This funnction is triggered when stream comes in from web"""
+    handle_cv_message(generate_video(strtonumpy(msg)))
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():

@@ -1,56 +1,54 @@
-//Todo- Implement Client side camera capture
+// get video dom element
+const video = document.querySelector('video');
+const text_elem = document.getElementById("streamer-text");
 
-// navigator.getUserMedia = ( navigator.getUserMedia ||
-//   navigator.webkitGetUserMedia ||
-//   navigator.mozGetUserMedia ||
-//   navigator.msGetUserMedia);
 
-// function startVideo() {
-// console.log("access");
-// navigator.getUserMedia(
-//   {
-//     video: {}
-//   },
-//   stream => video.srcObject = stream,
-//   err => console.error(err)
-//   )}
+// request access to webcam
+navigator.mediaDevices.getUserMedia({video: {width: 426, height: 240}}).then((stream) => video.srcObject = stream);
 
-var word = "";
+// returns a frame encoded in base64
+const getFrame = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    return canvas.toDataURL();
+};
 
-document.addEventListener("DOMContentLoaded", function(event) {
-    const image_elem = document.getElementById("streamer-image");
-    const text_elem = document.getElementById("streamer-text");
+var socket = io.connect('http://' + document.domain + ':' + location.port + '/web', {
+    reconnection: false
+});
 
-    var socket = io.connect('http://' + document.domain + ':' + location.port + '/web', {
-      reconnection: false
-    });
+socket.on('connect', () => {
+    console.log('Connected');
+    sendstream();
+});
 
-    socket.on('connect', () => {
-      console.log('Connected');
-    });
+socket.on('disconnect', () => {
+    console.log('Disconnected');
+});
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected');
-    });
+socket.on('connect_error', (error) => {
+    console.log('Connect error! ' + error);
+});
 
-    socket.on('connect_error', (error) => {
-      console.log('Connect error! ' + error);
-    });
+socket.on('connect_timeout', (error) => {
+    console.log('Connect timeout! ' + error);
+});
 
-    socket.on('connect_timeout', (error) => {
-      console.log('Connect timeout! ' + error);
-    });
+socket.on('error', (error) => {
+    console.log('Error! ' + error);
+});
 
-    socket.on('error', (error) => {
-      console.log('Error! ' + error);
-    });
-
-    // Update image and text data based on incoming data messages
-    socket.on('server2web', (msg) => {
-      image_elem.src = msg.image;
-      if (msg.text !== "nothing"){
-        word = word + msg.text
+function sendstream() {
+    setInterval(() => {
+        socket.emit('stream',getFrame());
+    }, 1000 / 2);
+}
+word = "";
+socket.on('server2web', (msg) => {
+    if (msg.text !== "nothing"){
+        word = word + msg.text;
         text_elem.innerHTML = word;
-      }
-    });
-  });
+    }
+});
