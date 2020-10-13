@@ -47,11 +47,10 @@ def start_connection():
 def predict(image_data, sess, softmax_tensor, label_lines):
     """Predicts the Character using the frame of the video"""
 
-    predictions = sess.run(softmax_tensor,
-                           {'DecodeJpeg/contents:0': image_data})
+    predictions = sess.run(softmax_tensor, {'DecodeJpeg/contents:0': image_data})
 
     # Sort to show labels of first prediction in order of confidence
-    top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+    top_k = predictions[0].argsort()[-len(predictions[0]) :][::-1]
 
     max_score = 0.0
     res = ''
@@ -67,8 +66,7 @@ def predict(image_data, sess, softmax_tensor, label_lines):
 def generate_video(im):
     """Generates frames after prediction"""
 
-    label_lines = [line.rstrip() for line
-                   in tf.gfile.GFile("server/logs/trained_labels.txt")]
+    label_lines = [line.rstrip() for line in tf.gfile.GFile("server/logs/trained_labels.txt")]
 
     # Unpersists graph from file
     with tf.gfile.FastGFile("server/logs/trained_graph.pb", 'rb') as f:
@@ -99,9 +97,7 @@ def generate_video(im):
             image_data = cv2.imencode('.jpg', img_cropped)[1].tostring()
             res_tmp, score = predict(image_data, sess, softmax_tensor, label_lines)
             mem = res
-            detected = {
-                'text': res_tmp
-            }
+            detected = {'text': res_tmp}
             return detected
 
 
@@ -116,4 +112,3 @@ def encode_frame(frame):
 def strtonumpy(s):
     img = imread(io.BytesIO(base64.b64decode(s[22:])))
     return img
-

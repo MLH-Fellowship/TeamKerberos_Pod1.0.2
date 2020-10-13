@@ -10,6 +10,8 @@
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/MLH-Fellowship/TeamKerberos_Pod1.0.2/blob/main/.pre-commit-config.yaml)
 [![License](https://img.shields.io/github/license/MLH-Fellowship/TeamKerberos_Pod1.0.2)](https://github.com/MLH-Fellowship/TeamKerberos_Pod1.0.2/blob/main/LICENSE)![GitHub pull requests by-label](https://img.shields.io/github/issues-pr/developer-student-club-thapar/officialWebsite/dependencies?label=Dependencies%20Status)
 
+</div>
+
 This project is a sign language alphabet recognizer using Python, openCV and tensorflow for training InceptionV3 model, a convolutional neural network model for classification.
 
 The framework used for the CNN implementation can be found here:
@@ -46,6 +48,11 @@ pre-commit install
 
 - This will setup the project requirements and pre-commit test hooks!
 
+- Then run the following command to run the backend service -
+```bash
+python server/app.py
+```
+- This will run the project at `localhost:5001`
 
 ## Contribution to the project
 
@@ -55,6 +62,7 @@ pre-commit install
 [![GitHub issues](https://img.shields.io/github/issues/developer-student-club-thapar/officialWebsite?logo=github)](https://github.com/MLH-Fellowship/TeamKerberos_Pod1.0.2/issues) ![GitHub pull requests](https://img.shields.io/github/issues-pr/MLH-Fellowship/TeamKerberos_Pod1.0.2) ![GitHub contributors](https://img.shields.io/github/contributors/MLH-Fellowship/TeamKerberos_Pod1.0.2)
 
 </div>
+
 We follow a systematic Git Workflow -
 
 - Create a fork of this repo.
@@ -70,13 +78,15 @@ We follow a systematic Git Workflow -
 - If you're making very, very small changes to your PR (such as fixing a failed Travis build, or making some minor style corrections or minor changes requested by reviewers), make sure you squeeze your commits afterwards, so you don't have an absurd number of commits for a very small fix. (Learn how to squash at [here](https://davidwalsh.name/squash-commits-git))
 - If you are submitting a PR for a UI-related topic, it would be really awesome if you could add a screenshot of your change or a link to a deployment where it can be tested along with your PR. This makes it very easy for reviewers and you will also get reviews faster.
 
-<div align = "center">
 
 # Contributors
+
 <a href="https://github.com/MLH-Fellowship/TeamKerberos_Pod1.0.2/graphs/contributors">
   <img src="https://contributors-img.web.app/image?repo=MLH-Fellowship/TeamKerberos_Pod1.0.2" />
 </a>
+
 # Maintainers of the project
+
 Amazing members of Team Kerberos!
 <table>
   <tr>

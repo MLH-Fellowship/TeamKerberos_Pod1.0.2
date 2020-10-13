@@ -17,20 +17,24 @@ def connect_web():
     """This funnction is triggered when web client connects successfully"""
     print('[INFO] Web client connected: {}'.format(request.sid))
 
+
 @socketio.on('video-stream', namespace='/web')
 def connect_web(message):
     """This funnction is triggered when web client connects successfully"""
     print('Video stream recieved {}'.format(message))
+
 
 @socketio.on('disconnect', namespace='/web')
 def disconnect_web():
     """This funnction is triggered when web client disconnects"""
     print('[INFO] Web client disconnected: {}'.format(request.sid))
 
+
 @socketio.on('stream', namespace='/web')
 def getstream(msg):
     """This funnction is triggered when stream comes in from web"""
     handle_cv_message(generate_video(strtonumpy(msg)))
+
 
 @socketio.on('connect', namespace='/cv')
 def connect_cv():
